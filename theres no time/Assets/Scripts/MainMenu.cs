@@ -50,8 +50,7 @@ public class MainMenu : MonoBehaviour
                 // Application.Quit;
             }
             {
-                // Start game or do something else depending on selectedButtonIndex
-                // SceneManager.LoadScene("YourSceneName");
+                // placeholder for other options
             }
         }
     }

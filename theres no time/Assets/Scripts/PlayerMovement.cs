@@ -16,9 +16,10 @@ public class PlayerMovement : MonoBehaviour
     // Movement Controls & Collision
     public float playerSpeed = 3.0f;
     public float maxSpeed = 12.0f;
-    public float jumpForce = 20.0f; // Added a separate jump force for better control over jump height
-    public float groundCheckRadius = 0.2f; // Radius of the ground check
+    public float jumpForce = 20.0f; 
+    public float groundCheckRadius = 0.2f; 
     private bool isGrounded;
+    public bool hasMoved = false;
     public Transform groundCheckPoint;
     public LayerMask environmentLayer;
 
@@ -47,11 +48,13 @@ public class PlayerMovement : MonoBehaviour
         // Horizontal Movement
         if (Input.GetKey(KeyCode.A))
         {
+            hasMoved = true;
             rb.AddForce(Vector2.left * playerSpeed);
             spriteRenderer.flipX = true;
         }
         else if (Input.GetKey(KeyCode.D))
         {
+            hasMoved = true;
             rb.AddForce(Vector2.right * playerSpeed);
             spriteRenderer.flipX = false;
         }
@@ -64,6 +67,7 @@ public class PlayerMovement : MonoBehaviour
         float speedPercentage = rb.velocity.magnitude / maxSpeed;
         float emissionRate = speedPercentage * maxParticleEmission;
         particleEmission.rateOverTime = emissionRate;
+
         if (rb.velocity.magnitude > 0.1) // Check if the player is moving
         {
             // Start particles if they are not playing
@@ -86,6 +90,7 @@ public class PlayerMovement : MonoBehaviour
         // Jumping
         if (Input.GetKeyDown(KeyCode.W) && isGrounded)
         {
+            hasMoved = true;
             rb.velocity = new Vector2(rb.velocity.x * 1.5f, 0); // Preserve horizontal momentum and increase it slightly when jumping
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse); // Add jump force
         }
@@ -93,6 +98,7 @@ public class PlayerMovement : MonoBehaviour
         // Crouch when S pressed
         if (Input.GetKeyDown(KeyCode.S))
         {
+            hasMoved = true;
             spriteRenderer.sprite = crouchingSprite;
             boxCollider.size = new Vector2(1f, 1f);
             boxCollider.offset = new Vector2(boxCollider.offset.x, -0.5f);
