@@ -5,19 +5,24 @@ using TMPro;
 
 public class Timer : MonoBehaviour
 {
-
     // Timer Variables
     public TextMeshProUGUI timerText;
     public float timeRemaining = 180;
-    private bool hasMoved = true;
+    private bool hasMoved = false;
     private int minutesDisplay;
     private int secondsDisplay;
     private int millisecondsDisplay;
+    private GameObject player;
+
+    private void Start()
+    {
+        player = GameObject.Find("Player"); // Find the player gameobject
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (!hasMoved && GameObject.Find("Player").GetComponent<PlayerMovement>().hasMoved)
+        if (!hasMoved && player.GetComponent<PlayerMovement>().hasMoved)
         {
             hasMoved = true;
         }
@@ -27,11 +32,10 @@ public class Timer : MonoBehaviour
             if (timeRemaining > 0)
             {
                 timeRemaining -= Time.deltaTime;
-                    DisplayTime(timeRemaining);
+                DisplayTime(timeRemaining);
             }
             else
             {
-                Debug.Log("Time has run out.");
                 timeRemaining = 0;
                 hasMoved = false;
             }
@@ -40,11 +44,12 @@ public class Timer : MonoBehaviour
 
     void DisplayTime(float timeToDisplay)
     {
-        timeToDisplay += 1;
         float minutes = Mathf.FloorToInt(timeToDisplay / 60);
         float seconds = Mathf.FloorToInt(timeToDisplay % 60);
-        float milliseconds = (timeToDisplay % 1) * 100;
+        float milliseconds = (timeToDisplay % 1) * 1000; // Changed here
 
-        timerText.text = string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, milliseconds);
+        milliseconds = Mathf.Round(milliseconds);
+
+        timerText.text = string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, Mathf.FloorToInt(milliseconds / 10));
     }
 }

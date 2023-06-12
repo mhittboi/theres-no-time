@@ -19,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 20.0f; 
     public float groundCheckRadius = 0.2f; 
     private bool isGrounded;
+    public bool crownCollected;
     public bool hasMoved = false;
     public Transform groundCheckPoint;
     public LayerMask environmentLayer;
@@ -38,6 +39,11 @@ public class PlayerMovement : MonoBehaviour
         // Particles
         particleEmission = playerParticles.emission;
         playerParticles.Stop();
+
+        // Crown Collected
+        crownCollected = false;
+
+        PauseController.canPause = true;
     }
 
     private void Update()
