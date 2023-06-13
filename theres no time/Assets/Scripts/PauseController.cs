@@ -41,7 +41,7 @@ public class PauseController : MonoBehaviour
 
     private void HandleMenuInput()
     {
-        if (canPause && Input.GetKeyDown(KeyCode.J))
+        if (canPause && Input.GetKeyDown(KeyCode.Keypad7))
         {
             TogglePause();
         }
@@ -49,7 +49,7 @@ public class PauseController : MonoBehaviour
         if (isPaused)
         {
             HandlePauseMenuNavigation();
-            if (Input.GetKeyDown(KeyCode.K))
+            if (Input.GetKeyDown(KeyCode.Keypad4))
             {
                 SelectMenuOption();
             }
@@ -83,11 +83,11 @@ public class PauseController : MonoBehaviour
         {
             int previousSelectedIndex = selectedButtonIndex;
 
-            if (Input.GetKeyDown(KeyCode.A))
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 selectedButtonIndex = (selectedButtonIndex > 0) ? selectedButtonIndex - 1 : menuButtons.Count - 1;
             }
-            else if (Input.GetKeyDown(KeyCode.D))
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 selectedButtonIndex = (selectedButtonIndex < menuButtons.Count - 1) ? selectedButtonIndex + 1 : 0;
             }

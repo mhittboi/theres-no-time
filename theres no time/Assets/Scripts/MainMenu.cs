@@ -19,7 +19,7 @@ public class MainMenu : MonoBehaviour
         int previousSelectedIndex = selectedButtonIndex;
 
         // Move selection up
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (selectedButtonIndex > 0)
                 selectedButtonIndex--;
@@ -27,7 +27,7 @@ public class MainMenu : MonoBehaviour
                 selectedButtonIndex = menuButtons.Count - 1; // Loop to bottom if at top
         }
         // Move selection down
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             if (selectedButtonIndex < menuButtons.Count - 1)
                 selectedButtonIndex++;
@@ -39,7 +39,7 @@ public class MainMenu : MonoBehaviour
             SelectButton();
 
         // Select option
-        if (Input.GetKeyDown(KeyCode.K))
+        if (Input.GetKeyDown(KeyCode.Keypad4))
         {
             if (selectedButtonIndex == 0)
             {

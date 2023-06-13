@@ -52,13 +52,13 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, environmentLayer);
 
         // Horizontal Movement
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.LeftArrow))
         {
             hasMoved = true;
             rb.AddForce(Vector2.left * playerSpeed);
             spriteRenderer.flipX = true;
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
             hasMoved = true;
             rb.AddForce(Vector2.right * playerSpeed);
@@ -94,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Jumping
-        if (Input.GetKeyDown(KeyCode.W) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.UpArrow) && isGrounded)
         {
             hasMoved = true;
             rb.velocity = new Vector2(rb.velocity.x * 1.5f, 0); // Preserve horizontal momentum and increase it slightly when jumping
@@ -102,14 +102,14 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Crouch when S pressed
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             hasMoved = true;
             spriteRenderer.sprite = crouchingSprite;
             boxCollider.size = new Vector2(1f, 1f);
             boxCollider.offset = new Vector2(boxCollider.offset.x, -0.5f);
         }
-        else if (Input.GetKeyUp(KeyCode.S))
+        else if (Input.GetKeyUp(KeyCode.DownArrow))
         {
             spriteRenderer.sprite = standingSprite;
             boxCollider.size = new Vector2(1f, 2f);
