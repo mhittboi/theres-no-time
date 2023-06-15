@@ -68,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (Input.GetKey(KeyCode.DownArrow)) // if down pressed, crouch
+        if (Input.GetKey(KeyCode.Keypad5)) // if down pressed, crouch
         {
             Crouch();
         }
@@ -90,7 +90,7 @@ public class PlayerMovement : MonoBehaviour
             Jump();
         }
 
-        if (Input.GetKeyUp(KeyCode.DownArrow)) // try and stand if crouching
+        if (Input.GetKeyUp(KeyCode.Keypad5)) // try and stand if crouching
         {
             TryStand();
         }
