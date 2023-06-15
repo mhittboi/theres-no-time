@@ -13,6 +13,7 @@ public class IntroSlides : MonoBehaviour
 
     private void Update()
     {
+        // if player presses 4, show next slide
         if (Input.GetKeyDown(KeyCode.Keypad4))
         {
             NextSlide();
@@ -31,12 +32,13 @@ public class IntroSlides : MonoBehaviour
     {
         if (currentSlide < slides.Length - 1)
         {
+            // show next slide for as long as they are available
             currentSlide++;
             ShowSlide(currentSlide);
         }
         else
         {
-            // All slides have been shown, load the next scene
+            // next scene
             SceneManager.LoadScene("MainGame");
         }
     }

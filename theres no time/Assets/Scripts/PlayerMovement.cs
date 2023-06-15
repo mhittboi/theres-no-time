@@ -4,116 +4,194 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // Other Components
-    private SpriteRenderer spriteRenderer;
-    private BoxCollider2D boxCollider;
     private Rigidbody2D rb;
+    private BoxCollider2D boxCollider;
+    private SpriteRenderer spriteRenderer;
+    private ParticleSystem.EmissionModule particleEmission;
 
-    // Player Sprites
-    public Sprite standingSprite;
-    public Sprite crouchingSprite;
-
-    // Movement Controls & Collision
+    // speed/movement
     public float playerSpeed = 3.0f;
+    public float playerCrouchSpeed = 1.5f;
     public float maxSpeed = 12.0f;
-    public float jumpForce = 20.0f; 
-    public float groundCheckRadius = 0.2f; 
+    public float jumpForce = 20.0f;
+
+    // collisions
+    public float groundCheckRadius = 0.5f;
+    public Transform groundCheckPoint;
+    public Transform overheadCheckPoint;
+    public LayerMask environmentLayer;
+    public LayerMask overheadObstructionLayer;
+
+    // spritesheet animations
+    private enum AnimationState { Idle, Running, Crouching };
+    private AnimationState currentState;
+    public Sprite[] playerSprites;
+    private float animationTimer = 0f;
+    private float animationInterval = 0.1f;
+
+    // particles
+    public ParticleSystem playerParticles;
+    private float maxParticleEmission = 500f;
+
+    // character information
     private bool isGrounded;
+    private bool isCrouching;
     public bool crownCollected;
     public bool hasMoved = false;
-    public Transform groundCheckPoint;
-    public LayerMask environmentLayer;
-
-    // Particles
-    public ParticleSystem playerParticles;
-    private ParticleSystem.EmissionModule particleEmission;
-    private float maxParticleEmission = 500f;
 
     private void Start()
     {
-        // Access & Assign the Other Components
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         boxCollider = GetComponent<BoxCollider2D>();
-
-        // Particles
         particleEmission = playerParticles.emission;
+
+        particleEmission.rateOverTime = 0;
         playerParticles.Stop();
 
-        // Crown Collected
         crownCollected = false;
-
         PauseController.canPause = true;
     }
 
     private void Update()
     {
-        // Check if grounded
-        isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, environmentLayer);
+        // check if game is paused to sav resources :)
+        if (PauseController.isPaused) return;
 
-        // Horizontal Movement
-        if (Input.GetKey(KeyCode.LeftArrow))
+        isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, environmentLayer); // check if currently grounded
+
+        // movement is broken into 3 parts - physical movement, animation, then visual effects. all 3 are called. 
+        HandleMovement();
+        HandleAnimation();
+        HandleParticles();
+    }
+
+    private void HandleMovement()
+    {
+        if (Input.GetKey(KeyCode.DownArrow)) // if down pressed, crouch
         {
-            hasMoved = true;
-            rb.AddForce(Vector2.left * playerSpeed);
-            spriteRenderer.flipX = true;
+            Crouch();
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow)) // if left pressed, move left
         {
-            hasMoved = true;
-            rb.AddForce(Vector2.right * playerSpeed);
-            spriteRenderer.flipX = false;
+            Move(Vector2.left);
         }
-        else // Decelerate when no key is pressed
+        else if (Input.GetKey(KeyCode.RightArrow)) // if right pressed, move right
         {
-            rb.velocity = new Vector2(rb.velocity.x * 0.9f, rb.velocity.y);
+            Move(Vector2.right);
+        }
+        else // default sprite
+        {
+            Idle();
         }
 
-        // Check the player's current speed and adjust particle emission accordingly
+        if (Input.GetKeyDown(KeyCode.UpArrow) && isGrounded) // if up pressed while grounded, jump
+        {
+            Jump();
+        }
+
+        if (Input.GetKeyUp(KeyCode.DownArrow)) // try and stand if crouching
+        {
+            TryStand();
+        }
+
+        // limit the character speed, whatever direction, to the max
+        LimitSpeed();
+    }
+
+    private void Move(Vector2 direction)
+    {
+        hasMoved = true; // this signals the countdown to begin
+        float speed = isCrouching ? playerCrouchSpeed : playerSpeed;  // use the reduced speed if the player is crouching
+        rb.AddForce(direction * speed);
+        spriteRenderer.flipX = direction == Vector2.left;
+        currentState = AnimationState.Running;
+        if (isCrouching) // if crouched, ensure that animation remains crouched while moving
+        {
+            currentState = AnimationState.Crouching;
+        }
+    }
+
+    private void Jump()
+    {
+        hasMoved = true;
+        rb.velocity = new Vector2(rb.velocity.x * 1.5f, 0);
+        rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+    }
+
+    private void Crouch()
+    {
+        isCrouching = true;
+        boxCollider.size = new Vector2(2f, 1f);
+        boxCollider.offset = new Vector2(boxCollider.offset.x, -1f);
+        currentState = AnimationState.Crouching;
+    }
+
+    private void TryStand()
+    {
+        bool hasOverheadObstruction = Physics2D.OverlapCircle(overheadCheckPoint.position, groundCheckRadius, overheadObstructionLayer); // check to see if adequate room to un-crouch
+        if (!hasOverheadObstruction)
+        {
+            boxCollider.size = new Vector2(1.5f, 3f);
+            boxCollider.offset = new Vector2(boxCollider.offset.x, 0f);
+            currentState = AnimationState.Idle;
+            isCrouching = false;
+        }
+    }
+
+    private void Idle()
+    {
+        rb.velocity = new Vector2(rb.velocity.x * 0.9f, rb.velocity.y);
+        if (currentState != AnimationState.Crouching)
+        {
+            currentState = AnimationState.Idle;
+        }
+    }
+
+    private void HandleAnimation() // displays appropriate sprites based on the current animationstate
+    {
+        switch (currentState)
+        {
+            case AnimationState.Idle: 
+                spriteRenderer.sprite = playerSprites[8];
+                break;
+
+            case AnimationState.Running:
+                animationTimer += Time.deltaTime;
+                if (animationTimer >= animationInterval)
+                {
+                    int spriteIndex = (int)((animationTimer / animationInterval) % 7);
+                    spriteRenderer.sprite = playerSprites[spriteIndex];
+                }
+                break;
+
+            case AnimationState.Crouching:
+                spriteRenderer.sprite = playerSprites[7];
+                break;
+        }
+    }
+
+    private void HandleParticles() // the particles here are tied to the players speed - faster means more particles. 
+    {
         float speedPercentage = rb.velocity.magnitude / maxSpeed;
         float emissionRate = speedPercentage * maxParticleEmission;
         particleEmission.rateOverTime = emissionRate;
 
-        if (rb.velocity.magnitude > 0.1) // Check if the player is moving
+        if (rb.velocity.magnitude > 0.1 && !playerParticles.isPlaying)
         {
-            // Start particles if they are not playing
-            if (!playerParticles.isPlaying)
-                playerParticles.Play();
+            playerParticles.Play();
         }
-        else
+        else if (currentState == AnimationState.Idle && playerParticles.isPlaying)
         {
-            // If the player is not running and particles are playing, stop the particles
-            if (playerParticles.isPlaying)
-                playerParticles.Stop();
+            playerParticles.Stop();
         }
+    }
 
-        // Limit horizontal speed to maxSpeed
+    private void LimitSpeed()
+    {
         if (Mathf.Abs(rb.velocity.x) > maxSpeed)
         {
             rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * maxSpeed, rb.velocity.y);
-        }
-
-        // Jumping
-        if (Input.GetKeyDown(KeyCode.UpArrow) && isGrounded)
-        {
-            hasMoved = true;
-            rb.velocity = new Vector2(rb.velocity.x * 1.5f, 0); // Preserve horizontal momentum and increase it slightly when jumping
-            rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse); // Add jump force
-        }
-
-        // Crouch when S pressed
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            hasMoved = true;
-            spriteRenderer.sprite = crouchingSprite;
-            boxCollider.size = new Vector2(1f, 1f);
-            boxCollider.offset = new Vector2(boxCollider.offset.x, -0.5f);
-        }
-        else if (Input.GetKeyUp(KeyCode.DownArrow))
-        {
-            spriteRenderer.sprite = standingSprite;
-            boxCollider.size = new Vector2(1f, 2f);
-            boxCollider.offset = new Vector2(boxCollider.offset.x, 0f);
         }
     }
 }

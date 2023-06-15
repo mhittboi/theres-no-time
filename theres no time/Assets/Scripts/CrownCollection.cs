@@ -6,6 +6,7 @@ public class CrownCollection : MonoBehaviour
     public Sprite crownCollectedSprite;
     public Image crownUIImage;
 
+    // check if colliding with player then disappear if yes & set crownCollected to true
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Player"))

@@ -18,27 +18,27 @@ public class MainMenu : MonoBehaviour
     {
         int previousSelectedIndex = selectedButtonIndex;
 
-        // Move selection up
+        // move selection up
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (selectedButtonIndex > 0)
                 selectedButtonIndex--;
             else
-                selectedButtonIndex = menuButtons.Count - 1; // Loop to bottom if at top
+                selectedButtonIndex = menuButtons.Count - 1; // loop to bottom if at top
         }
-        // Move selection down
+        // move selection down
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             if (selectedButtonIndex < menuButtons.Count - 1)
                 selectedButtonIndex++;
             else
-                selectedButtonIndex = 0; // Loop to top if at bottom
+                selectedButtonIndex = 0; // loop to top if at bottom
         }
 
         if (previousSelectedIndex != selectedButtonIndex)
             SelectButton();
 
-        // Select option
+        // select option
         if (Input.GetKeyDown(KeyCode.Keypad4))
         {
             if (selectedButtonIndex == 0)
@@ -47,10 +47,10 @@ public class MainMenu : MonoBehaviour
             }
             else if (selectedButtonIndex == menuButtons.Count - 1)
             {
-                // Application.Quit;
+                Application.Quit();
             }
             {
-                // placeholder for other options
+                // eughnjkfdg. controls/settings go here :(
             }
         }
     }
@@ -61,13 +61,13 @@ public class MainMenu : MonoBehaviour
         {
             if (i == selectedButtonIndex)
             {
-                // Highlight selected button
+                // highlight current button
                 Color newColor = new Color32(222, 158, 95, 255);
                 menuButtons[i].GetComponentInChildren<TMPro.TextMeshProUGUI>().color = newColor;
             }
             else
             {
-                // Unhighlight other buttons
+                // return other buttons to grey
                 menuButtons[i].GetComponentInChildren<TMPro.TextMeshProUGUI>().color = Color.gray;
             }
         }

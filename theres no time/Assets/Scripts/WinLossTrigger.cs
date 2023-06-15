@@ -6,22 +6,29 @@ using TMPro;
 
 public class WinLossTrigger : MonoBehaviour
 {
+    // victory screen visibility
     public GameObject victoryScreen;
     public List<Button> victoryMenuButtons;
 
+    // loss screen visibility
     public GameObject lossScreen;
     public List<Button> lossMenuButtons;
 
-    public Vector2 victoryLocation; 
+    public Vector2 victoryLocation; // location player must return to 
+
     private int selectedButtonIndex = 0;
-    private PlayerMovement player; 
+    private PlayerMovement player;
+    private Timer gameTimer;
+
+    // win conditions
     private bool playerHasWon = false;
     private bool playerHasLost = false;
 
-    private Timer gameTimer;
+
 
     private void Start()
     {
+        // start w/ all screens off
         victoryScreen.SetActive(false);
         lossScreen.SetActive(false);
 
@@ -69,7 +76,7 @@ public class WinLossTrigger : MonoBehaviour
             if (previousSelectedIndex != selectedButtonIndex)
                 SelectButton();
 
-            // Select option
+            // select option
             if (Input.GetKeyDown(KeyCode.Keypad4))
             {
                 if (selectedButtonIndex == 0)
@@ -92,13 +99,13 @@ public class WinLossTrigger : MonoBehaviour
         {
             if (i == selectedButtonIndex)
             {
-                // Highlight selected button
+                // highlight selected button
                 Color newColor = new Color32(222, 158, 95, 255);
                 activeMenuButtons[i].GetComponentInChildren<TMPro.TextMeshProUGUI>().color = newColor;
             }
             else
             {
-                // Unhighlight other buttons
+                // unhighlight other buttons
                 activeMenuButtons[i].GetComponentInChildren<TMPro.TextMeshProUGUI>().color = Color.gray;
             }
         }
